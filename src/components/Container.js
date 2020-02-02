@@ -2,6 +2,9 @@ import React, {Component} from "react";
 import HTMLContainer from "./HTMLContainer";
 import keyBy from "lodash/fp/keyBy";
 import map from "lodash/fp/map";
+import stubTrue from "lodash/fp/stubTrue";
+import cond from "lodash/fp/cond";
+import isEqual from "lodash/fp/isEqual";
 
 function getMyHtmlString(editableParts){
 
@@ -22,22 +25,28 @@ function getMyHtmlString(editableParts){
   )
 }
 
+const SUB_TYPES = {
+  'TEXT_INPUT' : 'TEXT_INPUT',
+  'TEXT_AREA' : 'TEXT_AREA',
+  'SELECT' : 'SELECT'
+}
+
 const editableParts = [
   {
     path:"card-title",
-    subType: 1,
+    subType: SUB_TYPES.TEXT_INPUT,
     label: "Card Title",
     value: "Card title"
   },
   {
     path: "card-text",
-    subType: 2,
+    subType: SUB_TYPES.TEXT_AREA,
     label: "Content",
     value: "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer."
   },
   {
     path: "card-img",
-    subType: 3,
+    subType: SUB_TYPES.SELECT,
     label: "Select Image",
     value: "/assets/image01.jpg",
     options: [
@@ -50,9 +59,14 @@ const editableParts = [
 
 function getOptionList(options){
   const list = options && options.length ? map((item) => <option key={item} value={item}>{item}</option>)(options) : null;
-
   return list;
 }
+
+const GetTextInput = ({value, onChange}) => <input type="email" className="form-control" id="exampleFormControl" aria-describedby="emailHelp" defaultValue={value} onChange={onChange}  />
+const GetTextArea = ({value, onChange}) =>  <textarea className="form-control" id="exampleFormControl" rows="3" defaultValue={value} onChange={onChange}  ></textarea>
+const GetSelect = ({value, onChange, options}) =>  (<select className="form-control" id="exampleFormControl" defaultValue={value} onChange={onChange} >
+                                                  {getOptionList(options)}
+                                                </select>)
 
 export default  class Container extends Component{
 
@@ -81,6 +95,7 @@ export default  class Container extends Component{
 
   render(){
     const {editableParts, selected} = this.state;
+    const onChangeValue = (key) => (e)=> this.onChange(key, e.target.value)
 
     return(
       <div className="container">
@@ -91,21 +106,17 @@ export default  class Container extends Component{
           <div className="col-6">
             { !selected ? null :
               <form>
-                {selected.subType === 1 ? <div className="form-group">
-                  <label htmlFor="exampleInputEmail1">{selected.label}</label>
-                  <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" defaultValue={selected.value} onChange={(e)=> this.onChange("card-title", e.target.value)}  />
-                </div> : selected.subType === 2 ?
                 <div className="form-group">
-                  <label htmlFor="exampleFormControlTextarea1">{selected.label}</label>
-                  <textarea className="form-control" id="exampleFormControlTextarea1" rows="3" defaultValue={selected.value} onChange={(e)=> this.onChange("card-text", e.target.value)}></textarea>
-                </div> : selected.subType === 3 ?
-                    <div className="form-group">
-                      <label htmlFor="exampleFormControlSelect1">{selected.label}</label>
-                      <select className="form-control" id="exampleFormControlSelect1" defaultValue={selected.value} onChange={(e)=>this.onChange("card-img", e.target.value)}>
-                        {getOptionList(selected.options)}
-                      </select>
-                    </div> : null
-                }
+                  <label htmlFor="exampleFormControl">{selected.label}</label>
+                  {
+                    cond([
+                      [isEqual(SUB_TYPES.TEXT_INPUT), ()=> <GetTextInput value={selected.value} onChange={onChangeValue("card-title")}  />],
+                      [isEqual(SUB_TYPES.TEXT_AREA), ()=> <GetTextArea value={selected.value} onChange={onChangeValue("card-text")}  />],
+                      [isEqual(SUB_TYPES.SELECT), ()=> <GetSelect value={selected.value} onChange={onChangeValue("card-img")} options={selected.options}  />],
+                      [stubTrue, () => null]
+                      ])(selected.subType)
+                  }
+                </div>
                 <button type="button" className="btn btn-secondary" onClick={this.onCancel}>Cancel</button>
               </form>
             }

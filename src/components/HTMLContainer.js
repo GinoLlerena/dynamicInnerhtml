@@ -1,32 +1,21 @@
-import React, {Component} from "react";
+import React from "react";
 
 
-class HTMLContainer extends Component {
+function HTMLContainer(props)  {
+  const {onSelect, myHtmlString} = props;
 
-  setRef = r => this.myRef = r
-
-  clickHandler = (e) => {
-    const {onSelect} = this.props;
-
+  function clickHandler(e) {
     onSelect(e.target.className);
-
-    console.log(e.target.className)
-
-    /*if(this.myRef){
-      console.log(this.myRef.innerHTML)
-    }*/
   }
 
-  createMarkup = value => {
-    return { __html: value };
+  function createMarkup(value){
+    return ({ __html: value });
   }
 
-  render() {
-    const {myHtmlString} = this.props;
-    return (
-      <div ref={this.setRef} onClick={this.clickHandler} dangerouslySetInnerHTML={this.createMarkup(myHtmlString)}/>
-    );
-  }
+  return (
+    <div  onClick={clickHandler} dangerouslySetInnerHTML={createMarkup(myHtmlString)}/>
+  );
+
 }
 
 export default HTMLContainer;
