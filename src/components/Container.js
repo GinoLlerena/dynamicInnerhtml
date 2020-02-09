@@ -110,9 +110,9 @@ export default  class Container extends Component{
                   <label htmlFor="exampleFormControl">{selected.label}</label>
                   {
                     cond([
-                      [isEqual(SUB_TYPES.TEXT_INPUT), ()=> <GetTextInput value={selected.value} onChange={onChangeValue("card-title")}  />],
-                      [isEqual(SUB_TYPES.TEXT_AREA), ()=> <GetTextArea value={selected.value} onChange={onChangeValue("card-text")}  />],
-                      [isEqual(SUB_TYPES.SELECT), ()=> <GetSelect value={selected.value} onChange={onChangeValue("card-img")} options={selected.options}  />],
+                      [isEqual(SUB_TYPES.TEXT_INPUT), ()=> <GetTextInput value={selected.value} onChange={onChangeValue(selected.path)}  />],
+                      [isEqual(SUB_TYPES.TEXT_AREA), ()=> <GetTextArea value={selected.value} onChange={onChangeValue(selected.path)}  />],
+                      [isEqual(SUB_TYPES.SELECT), ()=> <GetSelect value={selected.value} onChange={onChangeValue(selected.path)} options={selected.options}  />],
                       [stubTrue, () => null]
                       ])(selected.subType)
                   }
